@@ -190,25 +190,53 @@ class MapAgent(Agent):
 
 
      
-    def updateUtilities(self, walls):
+    def updateUtilities(self, walls, food):
+
+        gemma = 0.5
 
         for i in range(self.map.getWidth()):
             for j in range(self.map.getHeight()):
-                if self.map.getValue(i, j) != -5:
+                current = self.map.getValue(i, j)
+                if current != -5:
                     alist = []
-                    north = (i, j+1)
-                    south = (i, j-1)
+                    north1 = (i, j+1)
+                    south1 = (i, j-1)
                     east = (i+1, j)
                     west = (i-1, j)
 
-                    alist.append(north)
-                    alist.append(south)
+                  
+
+                    values = []
+
+                    alist.append(north1)
+                    alist.append(south1)
                     alist.append(east)
                     alist.append(west)
 
-                    for val in  alist:
+                  
+
+                    for val in alist:
                         if val not in walls and val[0] < self.map.getWidth() and val[1] < self.map.getHeight():
-                            print "hello"
+                            if val == west or val == east:
+                                temp =  0.8 * self.map.getValue(val[0], val[1]) + 0.1 * self.map.getValue(north1[0], north1[1]) + 0.1 * self.map.getValue(south1[0], south1[1]) 
+                                values.append(temp)
+                            if val == north1 or val == south1:
+                                temp =  0.8 * self.map.getValue(val[0],val[1]) + 0.1 * self.map.getValue(east[0],east[1]) + 0.1 * self.map.getValue(west[0], west[1]) 
+                                values.append(temp)
+                                        
+                    
+                    #print(values , " -----------------------------------------")        
+                                        
+                    m = max(values)
+                    rightBellman = gemma * m;
+                    reward = -1
+                    if (i,j) in food:
+                        reward = 15
+
+                    leftBellman = reward + rightBellman
+
+                    self.map.setValue(i,j,leftBellman)    
+
 
 
 
@@ -262,7 +290,7 @@ class MapAgent(Agent):
 
         print "ghosts array is ", ghostArray
 
-        self.updateUtilities(walls)
+        self.updateUtilities(walls, theFood)
 
         self.updateGhosts(ghostArray)
 
@@ -347,8 +375,8 @@ class MapAgent(Agent):
 
         print "MEU Choice *****************", moveToMake
 
-        if maximum < 0:
-            direction = random.choice(legal);
+        # if maximum < 0:
+        #     direction = random.choice(legal);
 
         #get the direction to go from getNextDirection
         # getNextDirection(pacman, self.corner, walls, legal, theFood, ghostArray)
