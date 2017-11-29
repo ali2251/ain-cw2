@@ -189,7 +189,58 @@ class MapAgent(Agent):
             print "values set to ", g0, " ", g1
 
 
-               
+     
+    def updateUtilities(self, walls):
+
+        for i in range(self.map.getWidth()):
+            for j in range(self.map.getHeight()):
+                if self.map.getValue(i, j) != -5:
+                    alist = []
+                    north = (i, j+1)
+                    south = (i, j-1)
+                    east = (i+1, j)
+                    west = (i-1, j)
+
+                    alist.append(north)
+                    alist.append(south)
+                    alist.append(east)
+                    alist.append(west)
+
+                    for val in  alist:
+                        if val not in walls and val[0] < self.map.getWidth() and val[1] < self.map.getHeight():
+                            print "hello"
+
+
+
+
+
+
+        # reward = self.map.getValue(move[0], move[1])
+        #     print "reward is ===============", reward
+
+        #     if mapOfLegal[move] == west:
+        #         #north or south
+        #         temp = reward + 0.8 * reward + 0.1 * self.map.getValue(northCoord[0], northCoord[1]) + 0.1 * self.map.getValue(southCoord[0], southCoord[1])
+        #         moves.append((temp, west))
+
+        #     if mapOfLegal[move] == south:
+        #         #east or west
+        #         temp = reward + 0.8 * reward + 0.1 * self.map.getValue(westCoord[0], westCoord[1]) + 0.1 * self.map.getValue(eastCoord[0], eastCoord[1])
+        #         moves.append((temp, south))
+
+
+        #     if mapOfLegal[move] == east:
+        #         #north or south
+        #         temp = reward + 0.8 * reward + 0.1 * self.map.getValue(northCoord[0], northCoord[1]) + 0.1 * self.map.getValue(southCoord[0], southCoord[1])
+        #         moves.append((temp, east))
+
+
+        #     if mapOfLegal[move] == north:
+        #         #west or east
+        #         temp = reward + 0.8 * reward + 0.1 * self.map.getValue(westCoord[0], westCoord[1]) + 0.1 * self.map.getValue(eastCoord[0], eastCoord[1])
+        #         moves.append((temp, north))
+       
+
  
     # For now I just move randomly, but I display the map to show my progress
     def getAction(self, state):
@@ -211,6 +262,8 @@ class MapAgent(Agent):
 
         print "ghosts array is ", ghostArray
 
+        self.updateUtilities(walls)
+
         self.updateGhosts(ghostArray)
 
         value = 100000
@@ -229,6 +282,8 @@ class MapAgent(Agent):
         eastCoord = (pacman[0]+1, pacman[1])  
         northCoord =  (pacman[0], pacman[1]+1)
         southCoord = (pacman[0], pacman[1]-1)
+
+
 
         for l in legal:
             if l == west:
