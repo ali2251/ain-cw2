@@ -202,23 +202,24 @@ class MapAgent(Agent):
         # for ghost in api.ghosts(state):
         #     self.map.setValue(int(ghost[0]), int(ghost[1]), -20)    
     
-    # def updateGhosts(self, ghosts):
-    #     for ghost in ghosts:
-    #         g0 = int(ghost[0])
-    #         g1 = int(ghost[1])
-    #         self.map.setValue(g0,g1,-20)
-    #         print "values now are ", self.map.getValue(g0,g1)
-    #         print "values set to ", g0, " ", g1
+    def updateGhosts(self, ghosts):
+        for ghost in ghosts:
+            g0 = int(ghost[0])
+            g1 = int(ghost[1])
+            self.map.setValue(g0,g1,-4)
+            print "values now are ", self.map.getValue(g0,g1)
+            print "values set to ", g0, " ", g1
 
 
      
     def updateUtilities(self, walls, food, ghosts):
 
         change = True
+        currentReward = 10
 
         while change == True:
 
-            gemma = 0.56
+            gemma = 1
             closestDistance = 1000
 
             for i in range(self.map.getWidth()):
@@ -259,7 +260,10 @@ class MapAgent(Agent):
                         rightBellman = gemma * m;
                         reward = -0.1
                         if (i,j) in food:
-                            reward = 10 
+                            currentReward = currentReward -  1
+                            reward = 10
+
+                            
 
 
                                 
@@ -267,7 +271,7 @@ class MapAgent(Agent):
                         leftBellman = reward + rightBellman
 
                         if oldValue == leftBellman:
-                            print "----------------------old value and new value is the same-------------------"
+                            #print "----------------------old value and new value is the same-------------------"
                             change = False
                         else:
                             change = True    
@@ -347,12 +351,11 @@ class MapAgent(Agent):
         north = Directions.NORTH
         ghostArray = api.ghosts(state)
         food = api.food(state)
-        gemma = 0.56
-
-
-
-
         
+
+
+
+        #self.updateGhosts(ghostArray)
         self.updateUtilities(walls, theFood, ghostArray)
 
 
@@ -368,7 +371,7 @@ class MapAgent(Agent):
             legal.remove(Directions.STOP)
 
 
-        self.map.setValue(pacman[0], pacman[1], -0.04)    
+        
 
 
         westCoord = (pacman[0]-1, pacman[1])
@@ -377,7 +380,7 @@ class MapAgent(Agent):
         southCoord = (pacman[0], pacman[1]-1)
 
 
-
+        self.map.setValue(pacman[0],pacman[1], 1)
 
         for l in legal:
             if l == west:
