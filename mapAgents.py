@@ -260,8 +260,9 @@ class MapAgent(Agent):
                         rightBellman = gemma * m;
                         reward = -0.1
                         if (i,j) in food:
-                            currentReward = currentReward -  1
                             reward = 10
+                        if (i,j) in ghosts:
+                            reward = -10   
 
                             
 
@@ -366,6 +367,7 @@ class MapAgent(Agent):
         distances = []
         moves = []
         alist = []
+        moveToCoordMap = dict()
 
         if Directions.STOP in legal:
             legal.remove(Directions.STOP)
@@ -385,16 +387,20 @@ class MapAgent(Agent):
         for l in legal:
             if l == west:
                 legalCoordinates.append(westCoord)
-                mapOfLegal[westCoord] = west;
+                mapOfLegal[westCoord] = west
+                moveToCoordMap[west] = westCoord
             if l == east:
                 legalCoordinates.append(eastCoord) 
-                mapOfLegal[eastCoord] = east;
+                mapOfLegal[eastCoord] = east
+                moveToCoordMap[east] = eastCoord
             if l == north:
                 legalCoordinates.append(northCoord)
                 mapOfLegal[northCoord] = north
+                moveToCoordMap[north] = northCoord
             if l == south:
                 legalCoordinates.append(southCoord)
-                mapOfLegal[southCoord] = south          
+                mapOfLegal[southCoord] = south
+                moveToCoordMap[south] = southCoord          
 
 
             values = []
@@ -448,7 +454,18 @@ class MapAgent(Agent):
             if m[0] > maximum:
                 maximum = m[0]
                 moveToMake = m[1]
+
+        t = False
+        for g in ghostArray:
+            if moveToCoordMap[moveToMake] == g:
+                t = True
     
+        if t == False:
+            direction = moveToMake
+        else:
+            print "++++++++++++++++++++++++++++++++++++++++"
+            legal.remove(moveToMake);
+            direction = random.choice(legal)
 
 
         # print mapOfLegal        
@@ -502,7 +519,7 @@ class MapAgent(Agent):
         print "--------------------> max is ", maximum
 
       
-        direction = moveToMake               
+                   
 
         
 
