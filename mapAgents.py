@@ -539,10 +539,11 @@ class MapAgent(Agent):
             direction = moveToMake
         else:
             print "++++++++++++++++++++++++++++++++++++++++"
-            if (len(legal) > 0):
+            if (len(legal) > 1):
                 legal.remove(moveToMake);
                 direction = random.choice(legal)
-
+            else:
+                direction = moveToMake
 
         # print mapOfLegal        
 
