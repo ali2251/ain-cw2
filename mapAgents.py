@@ -129,6 +129,7 @@ class MapAgent(Agent):
          self.addWallsToMap(state)
          self.updateFoodInMap(state)
          self.map.display()
+         self.updateUtilities(api.walls(state), api.food(state), api.ghosts(state))
 
     # This is what gets run when the game ends.
     def final(self, state):
@@ -177,72 +178,130 @@ class MapAgent(Agent):
                 if self.map.getValue(i, j) != -5:
                     self.map.setValue(i, j, -3)
         food = api.food(state)
-        for i in range(len(food)):
-            self.map.setValue(food[i][0], food[i][1], 10)
+        pacman = api.whereAmI(state)
+
+        value = 100000
+        foo = Directions.WEST
+            #find closest food
     
-    def updateGhosts(self, ghosts):
-        for ghost in ghosts:
-            g0 = int(ghost[0])
-            g1 = int(ghost[1])
-            self.map.setValue(g0,g1,-20)
-            print "values now are ", self.map.getValue(g0,g1)
-            print "values set to ", g0, " ", g1
+        for i in range(len(food)):
+            # for j in range(len(food)):
+            #     temp = util.manhattanDistance(pacman,food[j])
+            #     if temp < value:
+            #         value = temp;
+            #         foo = food[j]
+
+       
+            # val = 10 + value * -1   
+            self.map.setValue(food[i][0], food[i][1], 10)
+        
+
+
+        
+            
+        # for ghost in api.ghosts(state):
+        #     self.map.setValue(int(ghost[0]), int(ghost[1]), -20)    
+    
+    # def updateGhosts(self, ghosts):
+    #     for ghost in ghosts:
+    #         g0 = int(ghost[0])
+    #         g1 = int(ghost[1])
+    #         self.map.setValue(g0,g1,-20)
+    #         print "values now are ", self.map.getValue(g0,g1)
+    #         print "values set to ", g0, " ", g1
 
 
      
-    def updateUtilities(self, walls, food):
+    def updateUtilities(self, walls, food, ghosts):
 
-        gemma = 0.5
+        change = True
 
-        for i in range(self.map.getWidth()):
-            for j in range(self.map.getHeight()):
-                current = self.map.getValue(i, j)
-                if current != -5:
-                    alist = []
-                    north1 = (i, j+1)
-                    south1 = (i, j-1)
-                    east = (i+1, j)
-                    west = (i-1, j)
+        while change == True:
 
-                  
+            gemma = 0.56
+            closestDistance = 1000
 
-                    values = []
+            for i in range(self.map.getWidth()):
+                for j in range(self.map.getHeight()):
+                    current = self.map.getValue(i, j)
+                    if current != -5:
+                        alist = []
+                        north1 = (i, j+1)
+                        south1 = (i, j-1)
+                        east = (i+1, j)
+                        west = (i-1, j)
+                        oldValue = self.map.getValue(i,j)
 
-                    alist.append(north1)
-                    alist.append(south1)
-                    alist.append(east)
-                    alist.append(west)
+                      
 
-                  
+                        values = []
 
-                    for val in alist:
-                        if val not in walls and val[0] < self.map.getWidth() and val[1] < self.map.getHeight():
-                            if val == west or val == east:
-                                temp =  0.8 * self.map.getValue(val[0], val[1]) + 0.1 * self.map.getValue(north1[0], north1[1]) + 0.1 * self.map.getValue(south1[0], south1[1]) 
-                                values.append(temp)
-                            if val == north1 or val == south1:
-                                temp =  0.8 * self.map.getValue(val[0],val[1]) + 0.1 * self.map.getValue(east[0],east[1]) + 0.1 * self.map.getValue(west[0], west[1]) 
-                                values.append(temp)
-                                        
-                    
-                    #print(values , " -----------------------------------------")        
-                                        
-                    m = max(values)
-                    rightBellman = gemma * m;
-                    reward = -1
-                    if (i,j) in food:
-                        reward = 15
+                        alist.append(north1)
+                        alist.append(south1)
+                        alist.append(east)
+                        alist.append(west)
 
-                    leftBellman = reward + rightBellman
+                      
 
-                    self.map.setValue(i,j,leftBellman)    
-
-
-
-
+                        for val in alist:
+                            if val not in walls and val[0] < self.map.getWidth() and val[1] < self.map.getHeight():
+                                if val == west or val == east:
+                                    temp =  0.8 * self.map.getValue(val[0], val[1]) + 0.1 * self.map.getValue(north1[0], north1[1]) + 0.1 * self.map.getValue(south1[0], south1[1]) 
+                                    values.append(temp)
+                                if val == north1 or val == south1:
+                                    temp =  0.8 * self.map.getValue(val[0],val[1]) + 0.1 * self.map.getValue(east[0],east[1]) + 0.1 * self.map.getValue(west[0], west[1]) 
+                                    values.append(temp)
+                                            
+                        
+                        #print(values , " -----------------------------------------")        
+                                            
+                        m = max(values)
+                        rightBellman = gemma * m;
+                        reward = -0.1
+                        if (i,j) in food:
+                            reward = 10 
 
 
+                                
 
+                        leftBellman = reward + rightBellman
+
+                        if oldValue == leftBellman:
+                            print "----------------------old value and new value is the same-------------------"
+                            change = False
+                        else:
+                            change = True    
+
+
+                        self.map.setValue(i,j,leftBellman)    
+
+
+
+
+
+
+                    # value = 100000
+                    # collection = []
+                    # foodDict = dict()
+                    # foo = west
+                    #     #find closest food
+                
+                    # for i in range(len(food)):
+                    #     temp = util.manhattanDistance((i,j),food[i])
+                    #     collection.append(temp)
+                    #     foodDict[temp] = food[i] 
+                    #     if temp < value:
+                    #         value = temp;
+                    #         foo = food[i]
+
+                    # if value < closestDistance:
+                    #     val = 10 + closestDistance * -1 * self.map.getValue(int(foo[0]),int(foo[1])) * gemma    
+                    #     self.map.setValue(int(foo[0]),int(foo[1]), value)
+                    #     closestDistance = value;
+
+
+                    # if (i,j) in ghosts:
+                    #     reward = -15
         # reward = self.map.getValue(move[0], move[1])
         #     print "reward is ===============", reward
 
@@ -272,7 +331,7 @@ class MapAgent(Agent):
  
     # For now I just move randomly, but I display the map to show my progress
     def getAction(self, state):
-        self.updateFoodInMap(state)
+        #self.updateFoodInMap(state)
         self.map.prettyDisplay()
 
 
@@ -287,29 +346,36 @@ class MapAgent(Agent):
         south = Directions.SOUTH
         north = Directions.NORTH
         ghostArray = api.ghosts(state)
+        food = api.food(state)
+        gemma = 0.56
 
-        print "ghosts array is ", ghostArray
 
-        self.updateUtilities(walls, theFood)
 
-        self.updateGhosts(ghostArray)
+
+        
+        self.updateUtilities(walls, theFood, ghostArray)
+
 
         value = 100000
         mapOfWorld = dict()
         legalCoordinates = []
         mapOfLegal = dict()
+        distances = []
         moves = []
+        alist = []
 
         if Directions.STOP in legal:
             legal.remove(Directions.STOP)
 
 
+        self.map.setValue(pacman[0], pacman[1], -0.04)    
 
 
         westCoord = (pacman[0]-1, pacman[1])
         eastCoord = (pacman[0]+1, pacman[1])  
         northCoord =  (pacman[0], pacman[1]+1)
         southCoord = (pacman[0], pacman[1]-1)
+
 
 
 
@@ -328,50 +394,114 @@ class MapAgent(Agent):
                 mapOfLegal[southCoord] = south          
 
 
-        print mapOfLegal        
+            values = []
 
-        for move in legalCoordinates:
-            reward = self.map.getValue(move[0], move[1])
-            print "reward is ===============", reward
+            alist.append(northCoord)
+            alist.append(southCoord)
+            alist.append(eastCoord)
+            alist.append(westCoord)
 
-            if mapOfLegal[move] == west:
-                #north or south
-                temp = reward + 0.8 * reward + 0.1 * self.map.getValue(northCoord[0], northCoord[1]) + 0.1 * self.map.getValue(southCoord[0], southCoord[1])
-                moves.append((temp, west))
+          
 
-            if mapOfLegal[move] == south:
-                #east or west
-                temp = reward + 0.8 * reward + 0.1 * self.map.getValue(westCoord[0], westCoord[1]) + 0.1 * self.map.getValue(eastCoord[0], eastCoord[1])
-                moves.append((temp, south))
+        for val in alist:
+            if val not in walls and val[0] < self.map.getWidth() and val[1] < self.map.getHeight():
+                if val == westCoord:
+                    temp =  0.8 * self.map.getValue(val[0], val[1]) + 0.1 * self.map.getValue(northCoord[0], northCoord[1]) + 0.1 * self.map.getValue(southCoord[0], southCoord[1]) 
+                    values.append((temp, west))
+                if val == eastCoord:
+                    temp =  0.8 * self.map.getValue(val[0], val[1]) + 0.1 * self.map.getValue(northCoord[0], northCoord[1]) + 0.1 * self.map.getValue(southCoord[0], southCoord[1]) 
+                    values.append( (temp,east ) )
+                if val == northCoord:
+                    temp =  0.8 * self.map.getValue(val[0],val[1]) + 0.1 * self.map.getValue(eastCoord[0],eastCoord[1]) + 0.1 * self.map.getValue(westCoord[0], westCoord[1]) 
+                    values.append((temp, north))
+                if val == southCoord:
+                    temp =  0.8 * self.map.getValue(val[0],val[1]) + 0.1 * self.map.getValue(eastCoord[0],eastCoord[1]) + 0.1 * self.map.getValue(westCoord[0], westCoord[1]) 
+                    values.append((temp, south))
+                            
+        
+
+        #print(values , " -----------------------------------------")        
+                            
+        # m = max(values[0])
+        # rightBellman = gemma * m;
+        # reward = -1
+        # if (i,j) in food:
+        #     reward = 10 
 
 
-            if mapOfLegal[move] == east:
-                #north or south
-                temp = reward + 0.8 * reward + 0.1 * self.map.getValue(northCoord[0], northCoord[1]) + 0.1 * self.map.getValue(southCoord[0], southCoord[1])
-                moves.append((temp, east))
+                
 
+        # leftBellman = reward + rightBellman
 
-            if mapOfLegal[move] == north:
-                #west or east
-                temp = reward + 0.8 * reward + 0.1 * self.map.getValue(westCoord[0], westCoord[1]) + 0.1 * self.map.getValue(eastCoord[0], eastCoord[1])
-                moves.append((temp, north))
-
+        #self.map.setValue(i,j,leftBellman)
 
         maximum = -10
-        moveToMake = Directions.STOP
+        moveToMake = random.choice(legal)
+      
 
         print moves
 
-        for m in moves:
+        for m in values:
             if m[0] > maximum:
                 maximum = m[0]
                 moveToMake = m[1]
+    
+
+
+        # print mapOfLegal        
+
+        # for move in legalCoordinates:
+        #     reward = self.map.getValue(move[0], move[1])
+        #     print "reward is ===============", reward
+
+        #     if mapOfLegal[move] == west:
+        #         #north or south
+        #         temp = reward + 0.8 * reward + 0.1 * self.map.getValue(northCoord[0], northCoord[1]) + 0.1 * self.map.getValue(southCoord[0], southCoord[1])
+        #         moves.append((temp, west))     
+
+
+        #     if mapOfLegal[move] == south:
+        #         #east or west
+        #         temp = reward + 0.8 * reward + 0.1 * self.map.getValue(westCoord[0], westCoord[1]) + 0.1 * self.map.getValue(eastCoord[0], eastCoord[1])
+        #         moves.append((temp, south))
+
+
+        #     if mapOfLegal[move] == east:
+        #         #north or south
+        #         temp = reward + 0.8 * reward + 0.1 * self.map.getValue(northCoord[0], northCoord[1]) + 0.1 * self.map.getValue(southCoord[0], southCoord[1])
+        #         moves.append((temp, east))
+        #         # for i in range(len(food)):
+        #         #     temp = util.manhattanDistance(move,food[i])
+        #         #     if temp < value:
+        #         #         value = temp;
+        #         #         foo = food[i]
+
+        #         # distances.append((value, east))
 
 
 
-        print "--------------------> max is ", maximum    
+        #     if mapOfLegal[move] == north:
+        #         #west or east
+        #         temp = reward + 0.8 * reward + 0.1 * self.map.getValue(westCoord[0], westCoord[1]) + 0.1 * self.map.getValue(eastCoord[0], eastCoord[1])
+        #         moves.append((temp, north))
 
-        direction = moveToMake
+    
+
+
+
+        # for d in distances:
+        #     if d[0] < minimum:
+        #         minimum = d[0]
+        #         moveShould = d[1]
+
+
+
+        print "--------------------> max is ", maximum
+
+      
+        direction = moveToMake               
+
+        
 
         print "MEU Choice *****************", moveToMake
 
