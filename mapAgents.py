@@ -539,8 +539,9 @@ class MapAgent(Agent):
             direction = moveToMake
         else:
             print "++++++++++++++++++++++++++++++++++++++++"
-            legal.remove(moveToMake);
-            direction = random.choice(legal)
+            if (len(legal) > 0):
+                legal.remove(moveToMake);
+                direction = random.choice(legal)
 
 
         # print mapOfLegal        
