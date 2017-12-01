@@ -217,7 +217,9 @@ class MapAgent(Agent):
         change = True
         currentReward = 10
 
-        while change == True:
+        # while change == True:
+
+        for i in range(0,1000):
 
             gemma = 1
             closestDistance = 1000
@@ -232,6 +234,10 @@ class MapAgent(Agent):
                         east = (i+1, j)
                         west = (i-1, j)
                         oldValue = self.map.getValue(i,j)
+                        wallMap = dict()
+
+                    
+
 
                       
 
@@ -242,15 +248,49 @@ class MapAgent(Agent):
                         alist.append(east)
                         alist.append(west)
 
-                      
+                        for a in alist:
+                            if a in walls:
+                                wallMap[a] = True
+                            else:
+                                wallMap[a] = False
+
+                          
 
                         for val in alist:
                             if val not in walls and val[0] < self.map.getWidth() and val[1] < self.map.getHeight():
+                                
+                                pNorth = 0.1
+                                pSouth = 0.1
+                                pEast = 0.1
+                                pWest = 0.1
+
+                                if wallMap[north1] == True:
+                                    pNorth = 0.1 * self.map.getValue(val[0], val[1])
+                                else:
+                                    pNorth = 0.1 * self.map.getValue(north1[0], north1[1]) 
+
+                                if wallMap[south1] == True:
+                                    pSouth = 0.1 * self.map.getValue(val[0], val[1])
+                                else:
+                                    pSouth =  0.1 * self.map.getValue(south1[0], south1[1])
+
+                                if wallMap[east] == True:
+                                    pEast = 0.1 * self.map.getValue(val[0], val[1])
+                                else:
+                                    pEast = 0.1 * self.map.getValue(east[0],east[1])
+
+                                if wallMap[west] == True:
+                                    pWest = 0.1 * self.map.getValue(val[0], val[1])
+                                else:
+                                    pWest = 0.1 * self.map.getValue(west[0], west[1])
+
+
                                 if val == west or val == east:
-                                    temp =  0.8 * self.map.getValue(val[0], val[1]) + 0.1 * self.map.getValue(north1[0], north1[1]) + 0.1 * self.map.getValue(south1[0], south1[1]) 
+                                    temp =  0.8 * self.map.getValue(val[0], val[1]) + pSouth + pNorth
                                     values.append(temp)
+
                                 if val == north1 or val == south1:
-                                    temp =  0.8 * self.map.getValue(val[0],val[1]) + 0.1 * self.map.getValue(east[0],east[1]) + 0.1 * self.map.getValue(west[0], west[1]) 
+                                    temp =  0.8 * self.map.getValue(val[0],val[1]) + pEast + pWest 
                                     values.append(temp)
                                             
                         
@@ -368,6 +408,7 @@ class MapAgent(Agent):
         moves = []
         alist = []
         moveToCoordMap = dict()
+        wallMap = dict()
 
         if Directions.STOP in legal:
             legal.remove(Directions.STOP)
@@ -403,28 +444,62 @@ class MapAgent(Agent):
                 moveToCoordMap[south] = southCoord          
 
 
-            values = []
+        values = []
 
-            alist.append(northCoord)
-            alist.append(southCoord)
-            alist.append(eastCoord)
-            alist.append(westCoord)
+        alist.append(northCoord)
+        alist.append(southCoord)
+        alist.append(eastCoord)
+        alist.append(westCoord)
+
+        for a in alist:
+            if a in walls:
+                wallMap[a] = True
+            else:
+                wallMap[a] = False
+
+
 
           
 
         for val in alist:
             if val not in walls and val[0] < self.map.getWidth() and val[1] < self.map.getHeight():
+                pNorth = 0.1
+                pSouth = 0.1
+                pEast = 0.1
+                pWest = 0.1
+
+                if wallMap[northCoord] == True:
+                    pNorth = 0.1 * self.map.getValue(val[0], val[1])
+                else:
+                    pNorth = 0.1 * self.map.getValue(northCoord[0], northCoord[1]) 
+
+                if wallMap[southCoord] == True:
+                    pSouth = 0.1 * self.map.getValue(val[0], val[1])
+                else:
+                    pSouth =  0.1 * self.map.getValue(southCoord[0], southCoord[1])
+
+                if wallMap[eastCoord] == True:
+                    pEast = 0.1 * self.map.getValue(val[0], val[1])
+                else:
+                    pEast = 0.1 * self.map.getValue(eastCoord[0],eastCoord[1])
+
+                if wallMap[westCoord] == True:
+                    pWest = 0.1 * self.map.getValue(val[0], val[1])
+                else:
+                    pWest = 0.1 * self.map.getValue(westCoord[0], westCoord[1])
+
+
                 if val == westCoord:
-                    temp =  0.8 * self.map.getValue(val[0], val[1]) + 0.1 * self.map.getValue(northCoord[0], northCoord[1]) + 0.1 * self.map.getValue(southCoord[0], southCoord[1]) 
+                    temp =  0.8 * self.map.getValue(val[0], val[1]) + pNorth + pSouth
                     values.append((temp, west))
                 if val == eastCoord:
-                    temp =  0.8 * self.map.getValue(val[0], val[1]) + 0.1 * self.map.getValue(northCoord[0], northCoord[1]) + 0.1 * self.map.getValue(southCoord[0], southCoord[1]) 
+                    temp =  0.8 * self.map.getValue(val[0], val[1]) + pNorth + pSouth 
                     values.append( (temp,east ) )
                 if val == northCoord:
-                    temp =  0.8 * self.map.getValue(val[0],val[1]) + 0.1 * self.map.getValue(eastCoord[0],eastCoord[1]) + 0.1 * self.map.getValue(westCoord[0], westCoord[1]) 
+                    temp =  0.8 * self.map.getValue(val[0],val[1]) + pEast + pWest 
                     values.append((temp, north))
                 if val == southCoord:
-                    temp =  0.8 * self.map.getValue(val[0],val[1]) + 0.1 * self.map.getValue(eastCoord[0],eastCoord[1]) + 0.1 * self.map.getValue(westCoord[0], westCoord[1]) 
+                    temp =  0.8 * self.map.getValue(val[0],val[1]) + pEast + pWest 
                     values.append((temp, south))
                             
         
