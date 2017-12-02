@@ -129,7 +129,9 @@ class MapAgent(Agent):
          self.addWallsToMap(state)
          self.updateFoodInMap(state)
          self.map.display()
-         self.updateUtilities(api.walls(state), api.food(state), api.ghosts(state))
+         self.updateUtilities(api.walls(state), api.food(state), api.ghosts(state), 1000)
+         self.counter = 0
+
 
     # This is what gets run when the game ends.
     def final(self, state):
@@ -210,19 +212,32 @@ class MapAgent(Agent):
             print "values now are ", self.map.getValue(g0,g1)
             print "values set to ", g0, " ", g1
 
+    def getShortestGhostDistance(self, pacman, ghosts):
+        
+        if (len(ghosts) == 0):
+            return 0
+
+        minDistance = 10000
+        for ghost in ghosts:
+            temp = util.manhattanDistance(ghost, pacman)
+            if temp < minDistance:
+                minDistance = temp
+
+        return minDistance
+
 
      
-    def updateUtilities(self, walls, food, ghosts):
+    def updateUtilities(self, walls, food, ghosts,num):
 
         change = True
         currentReward = 10
 
         # while change == True:
 
-        for i in range(0,1000):
+        for i in range(0,num):
 
             gemma = 1
-            closestDistance = 1000
+            
 
             for i in range(self.map.getWidth()):
                 for j in range(self.map.getHeight()):
@@ -299,7 +314,7 @@ class MapAgent(Agent):
                         m = max(values)
                         rightBellman = gemma * m;
                         reward = -0.1
-                        if (i,j) in food:
+                        if (i,j) in food and self.map.getValue(i,j) != 10:
                             reward = 10
                         if (i,j) in ghosts:
                             reward = -10   
@@ -379,6 +394,8 @@ class MapAgent(Agent):
         #self.updateFoodInMap(state)
         self.map.prettyDisplay()
 
+        self.counter = self.counter + 1
+
 
 
         walls = api.walls(state)
@@ -394,10 +411,19 @@ class MapAgent(Agent):
         food = api.food(state)
         
 
+        # if self.counter > 100 or len(food) <= 2:
+        #     self.counter = 0
+        self.updateUtilities(walls, theFood, ghostArray, 100)
+
+
 
 
         #self.updateGhosts(ghostArray)
-        self.updateUtilities(walls, theFood, ghostArray)
+
+        dist = self.getShortestGhostDistance(pacman, ghostArray)
+
+        # if dist < 5 and dist != 0:
+        #self.updateUtilities(walls, theFood, ghostArray)
 
 
         value = 100000
